@@ -8,7 +8,7 @@
 #include	"sound.h"
 #include	"fmboard.h"
 #include	"s98.h"
-
+#include    "ayumi_glue.h"
 
 static void IOOUTCALL opna_o188(UINT port, REG8 dat) {
 
@@ -29,7 +29,11 @@ static void IOOUTCALL opna_o18a(UINT port, REG8 dat) {
 	S98_put(NORMAL2608, addr, dat);
 	if (addr < 0x10) {
 		if (addr != 0x0e) {
+#ifdef PC98_SSG_USE_AYUMI
+            ayumi_reg_write(&ayumi_ctx, addr, dat);
+#else
 			psggen_setreg(&psg1, addr, dat);
+#endif
 		}
 	}
 	else {
@@ -114,7 +118,11 @@ static REG8 IOINPCALL opna_i18a(UINT port) {
 		return(fmboard_getjoy(&psg1));
 	}
 	else if (addr < 0x10) {
+#ifdef PC98_SSG_USE_AYUMI
+        return ayumi_reg_read(&ayumi_ctx, addr);
+#else
 		return(psggen_getreg(&psg1, addr));
+#endif
 	}
 	else if (addr == 0xff) {
 		return(1);
@@ -186,7 +194,9 @@ void board86_bind(void) {
 
 	fmboard_fmrestore(0, 0);
 	fmboard_fmrestore(3, 1);
-	psggen_restore(&psg1);
+#ifndef PC98_SSG_USE_AYUMI
+    psggen_restore(&psg1);
+#endif;
 	fmboard_rhyrestore(&rhythm, 0);
 //	sound_streamregist(&opngen, (SOUNDCB)opngen_getpcm);
 //	sound_streamregist(&psg1, (SOUNDCB)psggen_getpcm);
@@ -260,7 +270,9 @@ void board86c_bind(void) {
 
 	fmboard_fmrestore(0, 0);
 	fmboard_fmrestore(3, 1);
-	psggen_restore(&psg1);
+#ifndef PC98_SSG_USE_AYUMI
+    psggen_restore(&psg1);
+#endif;
 	fmboard_rhyrestore(&rhythm, 0);
 //	sound_streamregist(&opngen, (SOUNDCB)opngen_getpcm);
 //	sound_streamregist(&psg1, (SOUNDCB)psggen_getpcm);

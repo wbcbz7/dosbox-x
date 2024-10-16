@@ -1,4 +1,3 @@
-
 enum {
 #if defined(SUPPORT_PX)
 	OPNCH_MAX		= 30,

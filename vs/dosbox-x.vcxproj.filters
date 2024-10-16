@@ -1652,6 +1652,12 @@
     <ClCompile Include="..\src\builtin\ne2000bin.cpp">
       <Filter>Sources\builtin</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\other\ayumi\ayumi.c">
+      <Filter>Sources\hardware\snd_pc98</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\hardware\snd_pc98\ayumi_glue.cpp">
+      <Filter>Sources\hardware\snd_pc98</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\aviwriter\avi.h">
@@ -2608,6 +2614,12 @@
     </ClInclude>
     <ClInclude Include="..\include\version_string.h" />
     <ClInclude Include="..\src\hardware\esfmu\esfm.h" />
+    <ClInclude Include="..\include\ayumi.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ayumi_glue.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\src\winres.rc">

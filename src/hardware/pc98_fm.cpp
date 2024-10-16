@@ -1,4 +1,3 @@
-
 #include "dosbox.h"
 #include "logging.h"
 #include "setup.h"
@@ -21,6 +20,7 @@
 #include "regs.h"
 #include "mixer.h"
 #include "callback.h"
+#include "ayumi_glue.h"
 
 #include <assert.h>
 #include <string.h>
@@ -128,6 +128,7 @@ void pc98_fm86_write(Bitu port,Bitu val,Bitu iolen) {
     (void)iolen;//UNUSED
     const auto &cbusm = cbuscore_map[port];
     const auto &func = cbusm.out;
+
     if (func) func(port,val);
 }
 
@@ -209,9 +210,13 @@ static void pc98_mix_CallBack(Bitu len) {
     opngen_getpcm(NULL, (SINT32*)MixTemp, s);
     tms3631_getpcm(&tms3631, (SINT32*)MixTemp, s);
 
+#ifdef PC98_SSG_USE_AYUMI
+    ayumi_mix_audio_int32(&ayumi_ctx, (int32_t*)MixTemp, s);
+#else
     for (unsigned int i=0;i < 3;i++)
         psggen_getpcm(&__psg[i], (SINT32*)MixTemp, s);
- 
+#endif
+
     // NTS: _RHYTHM is a struct with the same initial layout as PCMMIX
     pcmmix_getpcm((PCMMIX)(&rhythm), (SINT32*)MixTemp, s);
 #if defined(SUPPORT_PX)
@@ -460,8 +465,17 @@ void PC98_FM_OnEnterPC98(Section *sec) {
         tms3631_setvol(pccore.vol14);
         opngen_initialize(rate);
         opngen_setvol(pccore.vol_fm);
+#ifdef PC98_SSG_USE_AYUMI
+        memset(ayumi_ctx.regs, 0, sizeof(ayumi_ctx.regs));
+        ayumi_configure(&ayumi_ctx.ayumi, 1, PC98_OPNA_SSG_CLOCK, 44100);
+        ayumi_set_pan(&ayumi_ctx.ayumi, 0, 0.5, 0);
+        ayumi_set_pan(&ayumi_ctx.ayumi, 1, 0.5, 0);
+        ayumi_set_pan(&ayumi_ctx.ayumi, 2, 0.5, 0);
+        ayumi_ctx.volume[0] = ayumi_ctx.volume[1] = 0xC00 * (1 << (PSGADDEDBIT)); // TODO
+#else
         psggen_initialize(rate);
         psggen_setvol(pccore.vol_ssg);
+#endif
         rhythm_initialize(rate);
         rhythm_setvol(pccore.vol_rhythm);
         adpcm_initialize(rate);
